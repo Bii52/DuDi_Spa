@@ -34,7 +34,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen font-sans bg-[#fefefe]">
+    <div className="min-h-screen w-screen font-sans bg-[#fefefe]">
       {/* Main Content */}
       <main className="max-w-6xl mx-auto grid md:grid-cols-4 gap-6 p-6 ">
         {/* Thông tin cá nhân */}
