@@ -12,7 +12,7 @@ import logo from '../assets/images/logo-servicemarket.png';
 const Footer = () => {
     return (
         <div>
-            <footer className="bg-[#2A2529] text-white py-10 px-6 mt-10">
+            <footer className="bg-[#241520] text-white py-10 px-6">
                 <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8">
                     <div className="flex items-center gap-2 mb-4 md:mb-0">
                         <img
@@ -64,7 +64,7 @@ const Footer = () => {
                     </div>
                 </div>
             </footer>
-            <div className="bg-[#140610] text-white py-4 text-center text-sm">
+            <div className="bg-[#160813] text-white py-4 text-center text-sm">
                 © 2023, ServiceMarket.dk | All rights reserved.
             </div>
         </div>
