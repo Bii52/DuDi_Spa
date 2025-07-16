@@ -13,10 +13,10 @@ const Header = () => {
             </div>
 
             <nav className="space-x-4 hidden md:flex items-center text-sm">
-                <a href="#" className="hover:underline">Home</a>
-                <a href="#" className="hover:underline">About Us</a>
-                <a href="#" className="hover:underline">Contact Us</a>
-                <a href="#" className="hover:underline">EN ▾</a>
+                <a href="#" className="hover:underline text-black">Home</a>
+                <a href="#" className="hover:underline text-black">About Us</a>
+                <a href="#" className="hover:underline text-black">Contact Us</a>
+                <a href="#" className="hover:underline text-black">EN ▾</a>
                 <button className="px-4 py-1 border border-black rounded">Login</button>
                 <button className="px-4 py-1 bg-black text-white rounded">Signup</button>
             </nav>
