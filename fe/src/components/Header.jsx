@@ -11,7 +11,6 @@ const Header = () => {
                 />
                 <span className="text-2xl font-bold text-purple-800">STYLICLE</span>
             </div>
-
             <nav className="space-x-4 hidden md:flex items-center text-sm">
                 <a href="#" className="hover:underline text-black">Home</a>
                 <a href="#" className="hover:underline text-black">About Us</a>
