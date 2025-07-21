@@ -1,21 +1,40 @@
+
+@import "tailwindcss";
+
+
+
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Manrope, Avenir, Helvetica, Arial, Playfair Display, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  --text-color: #000;
+  --heading-color: ;
+  --font-name: "Manrope", sans-serif;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light dark; 
+  --bg-color: #fff;
+ 
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --hero-gradient: linear-gradient(
+    89.61deg,
+    #422A3C 55.75%,
+    rgba(66, 42, 60, 0.85) 66.03%,
+    rgba(66, 42, 60, 0.8) 75.96%,
+    rgba(66, 42, 60, 0.31) 84.81%,
+    rgba(66, 42, 60, 0) 99.7%
+  );
+  
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #000;
   text-decoration: inherit;
 }
 a:hover {
@@ -24,20 +43,34 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+
   min-width: 320px;
   min-height: 100vh;
+}
+
+h4 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  color: #f7e5c1;
+  font-family: 'Playfair Display', serif;
 }
 
+
+
+h2{
+  font-family: 'Playfair Display', serif;
+  font-size: 45px;
+  
+}
+
+
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
+
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
@@ -49,10 +82,8 @@ button {
 button:hover {
   border-color: #646cff;
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
+
+
 
 @media (prefers-color-scheme: light) {
   :root {
@@ -63,6 +94,33 @@ button:focus-visible {
     color: #747bff;
   }
   button {
-    background-color: #f9f9f9;
+    background-color: var(--bg-color);
   }
+}
+
+
+
+@media only screen and (max-width:992px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+}
+
+@media only screen and (max-width:640px) {
+  h2 {
+    font-size: 36px;
+  }
+
+  h4 {
+    font-size: 0.9rem;
+  }
+
+  h3 {
+    font-size: 1rem;
+  }
+
+}
+
+.font-display {
+  font-family: 'Playfair Display', serif;
 }
