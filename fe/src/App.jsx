@@ -1,16 +1,14 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Profile from './pages/Profile';
+import { BrowserRouter } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import AppRoutes from './routes/Routes';
 
 const App = () => {
   return (
     <BrowserRouter>
-    <Header />
-      <Routes>
-        <Route path="/" element={<Profile />} />
-      </Routes>
+      <Header />
+      <AppRoutes />
       <Footer />
     </BrowserRouter>
   );
