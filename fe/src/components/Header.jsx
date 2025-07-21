@@ -62,8 +62,8 @@ const Header = () => {
           </div>
           
           {/* button start*/}
-          <div className="button__group hidden md:flex gap-4">
-            <div className="md:hidden"><LanguageSwitcher/></div>   
+          <div className="button__group hidden lg:flex gap-4">
+            <div className="block md:hidden"><LanguageSwitcher/></div>   
             <Link
               to="/login"
               className="border-[1.5px] rounded-[5px] px-4 py-2 text-center block"
@@ -80,10 +80,11 @@ const Header = () => {
           {/* button end */}        
         </div>
         {/* menu end */}
-        <div className=" lg:hidden flex items-center">           
-         <span className='block lg:hidden' onClick={toggleMenu}>
-          <i className="ri-menu-line"></i>          
-         </span>
+        <div className=" lg:hidden flex items-center">      
+            <LanguageSwitcher/>     
+            <span className='block lg:hidden' onClick={toggleMenu}>
+            <i className="ri-menu-line"></i>          
+            </span>
         </div>
         
       </div>
@@ -111,7 +112,7 @@ const Header = () => {
               }
             </ul>  
             {/* button start*/}
-            <div className="block md:hidden button__group flex flex-col gap-5 my-12 items-center ">
+            <div className="block lg:hidden button__group flex flex-col gap-5 my-12 items-center ">
               <button className='border-[1.5px] rounded-[5px]'>
                <Link to='/login'>Login</Link>
               </button>
