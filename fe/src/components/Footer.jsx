@@ -1,74 +1,135 @@
-import React from 'react';
-import {
-    FaMapMarkerAlt,
-    FaEnvelope,
-    FaPhoneAlt,
-    FaFacebookF,
-    FaTwitter,
-    FaInstagram,
-} from 'react-icons/fa';
-import logo from '../assets/images/logo-servicemarket.png';
+import React from 'react'
+import logoService from '../assets/images/Logo-service.png'
+import icon01 from '../assets/images/ic-1.png'
+import icon02 from '../assets/images/ic-2.png'
+import icon03 from '../assets/images/ic-3.png'
+import icon04 from '../assets/images/ic-4.png'
+
+
+const explore__links = [
+  {
+    path:'/home',
+    display:'Home'
+  },
+  {
+    path: '/about',
+    display:'About Us'
+  },
+  {
+    path: '/services',
+    display: 'Services'
+  },
+  {
+    path: '/blog',
+    display: 'Blog'
+  },
+  {
+    path: '/contact',
+    display: 'Contac tUs'
+  },
+]
+
+const utility__links = [
+  {
+    path:'/privacy',
+    display:'Privacy Policy'
+  },
+  {
+    path: '/termsofuse',
+    display:'Terms of Use'
+  },
+]
 
 const Footer = () => {
-    return (
-        <div>
-            <footer className="bg-[#241520] text-white py-10 px-6">
-                <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8">
-                    <div className="flex items-center gap-2 mb-4 md:mb-0">
-                        <img
-                            src={logo}
-                            alt="ServiceMarket-logo"
-                            className="h-10 object-contain"
-                        />
-                        <span className="text-lg font-semibold">ServiceMarket</span>
-                    </div>
-
-                    <div className="flex gap-4">
-                        <a href="#" className="hover:text-pink-400"><FaFacebookF /></a>
-                        <a href="#" className="hover:text-pink-400"><FaTwitter /></a>
-                        <a href="#" className="hover:text-pink-400"><FaInstagram /></a>
-                    </div>
-                </div>
-
-                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 border-t border-gray-700 pt-4">
-                    <div>
-                        <h4 className="font-bold mb-3">Explore</h4>
-                        <ul className="space-y-1 text-sm">
-                            <li><a href="#" className="hover:underline">Home</a></li>
-                            <li><a href="#" className="hover:underline">About Us</a></li>
-                            <li><a href="#" className="hover:underline">Services</a></li>
-                            <li><a href="#" className="hover:underline">Blog</a></li>
-                            <li><a href="#" className="hover:underline">Contact Us</a></li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h4 className="font-bold mb-3">Utility Pages</h4>
-                        <ul className="space-y-1 text-sm">
-                            <li><a href="#" className="hover:underline">Privacy Policy</a></li>
-                            <li><a href="#" className="hover:underline">Terms of Use</a></li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h4 className="font-bold mb-3">Keep in Touch</h4>
-                        <p className="text-sm flex items-center gap-2">
-                            <FaMapMarkerAlt className="text-pink-400" /> Mariendalsvej 500 22000 Frederiksberg
-                        </p>
-                        <p className="text-sm flex items-center gap-2 mt-2">
-                            <FaEnvelope className="text-pink-400" /> support@servicemarket.com
-                        </p>
-                        <p className="text-sm flex items-center gap-2 mt-2">
-                            <FaPhoneAlt className="text-pink-400" /> (+22) 123 - 4567 - 900
-                        </p>
-                    </div>
-                </div>
-            </footer>
-            <div className="bg-[#160813] text-white py-4 text-center text-sm">
-                © 2023, ServiceMarket.dk | All rights reserved.
-            </div>
+  return (
+    <>
+    <div id="footer__container" className="flex flex-col bg-[#241520] text-[#fff] justify-center h-full w-full">
+      <div id="content__container" className='flex flex-col w-full h-full xl:h-[70%] mx-auto my-12'>
+        <div id="beauty" className='flex flex-col sm:flex-row  w-[70%] justify-between mx-auto'>
+          <div className="items-center justify-center mb-12">
+            <img src={logoService} alt="" className=' h-[35px] sm:h-[50px] sm:w-full object-cover '/>
+          </div>
+          <div id="icon__group" className='flex gap-2 h-auto object-cover '>
+            <a href="#">
+              <img src={icon01} alt="" className='w-[80%] sm:w-full'/>
+            </a>
+            <a href="#">
+              <img src={icon02} alt="" className='w-[80%] sm:w-full' />
+            </a>
+            <a href="#">
+              <img src={icon03} alt="" className='w-[80%] sm:w-full' />
+            </a>
+            <a href="#">
+              <img src={icon04} alt="" className='w-[80%] sm:w-full' />
+            </a>
+          </div>
         </div>
-    );
-};
+        <hr className='border-t border-white my-6 w-[70%] mx-auto my-12 '/>
 
-export default Footer;
+        <div id="content" className='grid w-[70%] grid-cols-1 lg:grid-cols-3  mx-auto justify-center text-left gap-6'>
+          <div className="1">
+            <h4>Explore</h4>
+            <ul className='mt-3'>
+              {explore__links.map((item,index) => (
+                  <li
+                  key={index} 
+                  className='font-medium text-[17px] leading-[200%] tracking-[-0.01em]'>
+                    <a href={item.href} className='!text-white'>
+                      {item.display}
+                    </a>
+
+                  </li>
+              ))}            
+
+            </ul>
+          </div>
+          <div className="2">
+            <h4 className='text-nowrap'>Utility Pages</h4>
+            <ul className='mt-3'>
+              {utility__links.map((item,index) => (
+                  <li
+                  key={index} 
+                  className='font-medium text-[17px] leading-[200%] tracking-[-0.01em]'>
+                    <a href={item.href} className='!text-white'>
+                      {item.display}
+                    </a>
+
+                  </li>
+              ))}         
+
+            </ul>
+
+          </div>
+          <div className="">
+            <h4 className='text-nowrap'>Keep in Touch</h4>
+            <div id="Address" className='flex mt-3 font-medium text-[17px] leading-[200%] tracking-[-0.01em]'>
+                <h5 className="w-20 shrink-0">Address:</h5>
+                <p>Mariendalsvej 50D 2 2000 Frederiksberg.</p>
+            </div>
+            <div id="Mail" className='flex font-medium text-[17px] leading-[200%] tracking-[-0.01em]'>
+               <h5 className="w-20 shrink-0">Mail:</h5>
+               <p>support@servicemarket.com</p>
+            </div>
+            <div id="Phone" className='flex font-medium text-[17px] leading-[200%] tracking-[-0.01em]'>
+              <h5 className="w-20 shrink-0">Phone:</h5>
+              <p>(+22) 123 - 4567 - 900</p>
+
+            </div>
+          </div>          
+        </div>
+
+
+
+      </div>
+
+      <div id="copyright" className=' text-[18px] font-normal leading-[200%] tracking-[-0.5px] text-center items-center !bg-[#160813] py-6'>
+        <p className=''>© 2023, ServiceMarket.dk | All rights reserved.</p>
+      </div>
+    </div>
+
+
+    </>
+  )
+}
+
+export default Footer
