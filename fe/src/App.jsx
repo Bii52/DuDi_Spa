@@ -1,15 +1,13 @@
+import React from 'react';
+import AppRoutes from './routes/Routes';
+import './App.css';
 
-
-import './App.css'
-import AppRoutes from './routes/Routes'
 function App() {
-  
   return (
     <>
-      <AppRoutes/>
+      <AppRoutes />
     </>
-  )
+  );
 }
 
-export default App
-
+export default App;
