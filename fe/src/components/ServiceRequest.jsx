@@ -5,6 +5,7 @@ import { LuBookOpen } from "react-icons/lu";
 import { useState, useRef } from "react";
 import { FaRegEdit } from "react-icons/fa";
 import ReCAPTCHA from "react-google-recaptcha";
+import React from 'react';
 
 const GOOGLE_RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
   
