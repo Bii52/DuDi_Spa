@@ -1,34 +1,44 @@
 import express from 'express';
 import cors from 'cors';
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import passport from 'passport';
 import session from 'express-session';
 
 import './config/passport.js';
-import authRoute from './routes/auth.route.js';
+import authRoutes from './routes/auth.route.js';
 
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+// Middleware
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 
-// session cần thiết để passport hoạt động (dù không dùng session login)
-app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
+// Session (Passport cần)
+app.use(session({
+  secret: 'facebook_secret_key',
+  resave: false,
+  saveUninitialized: false
+}));
 
+// Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Routes
+app.use('/api/auth', authRoutes);
+
+// MongoDB
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected"));
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.error('❌ MongoDB error:', err));
 
-app.use('/api/auth', authRoute);
-
-app.get('/', (req, res) => {
-  res.send('API is running...');
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
