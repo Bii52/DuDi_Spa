@@ -1,8 +1,12 @@
 import { Router } from "express";
 import { registerController, loginController, logoutController } from "../../controllers/authenticate.controller.js";
 import verifyToken from "../../middleware/verify_token.middleware.js";
+import socialAuthRoutes from "./auth.route.js";
 
 const router = Router();
+
+// Social authentication routes (Facebook, Google)
+router.use('/', socialAuthRoutes);
 
 router.post("/test-verify-token", verifyToken, (req, res) => {
   console.log(req.userData)
