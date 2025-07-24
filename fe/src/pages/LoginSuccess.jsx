@@ -13,7 +13,7 @@ const LoginSuccess = () => {
     const token = searchParams.get('token');
     if (token) {
       localStorage.setItem('token', token);
-
+      dispatch(fetchCurrentUser());
       axios.get('/api/auth/me', {
         headers: {
           Authorization: `Bearer ${token}`

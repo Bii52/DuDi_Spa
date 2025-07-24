@@ -35,9 +35,14 @@ const Login = () => {
             <hr className="flex-grow border-t border-gray-300" />
           </div>
           <div className="flex w-full gap-6 justify-between">
-            <button className='flex w-1/2 justify-center items-center border border-red-500 rounded-md'>
-              <img src={icGg} alt="" />
-              Google
+            <button
+              className="flex w-1/2 justify-center items-center border border-red-500 rounded-md gap-2 py-2"
+              onClick={() => {
+                window.location.href = 'http://localhost:5000/api/auth/google';
+              }}
+            >
+              <img src={icGg} alt="Google" className="w-5 h-5" />
+              <span>Google</span>
             </button>
             <button
               className="flex w-1/2 justify-center items-center border border-sky-500 rounded-md gap-2 py-2"
@@ -48,8 +53,6 @@ const Login = () => {
               <img src={icFb} alt="Facebook" className="w-5 h-5" />
               <span>Facebook</span>
             </button>
-
-
           </div>
           <p>Don't have an account? <Link to='/register'>Create</Link></p>
         </div>

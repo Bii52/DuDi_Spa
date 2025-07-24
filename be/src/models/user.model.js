@@ -4,9 +4,12 @@ import bcrypt from 'bcrypt';
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
-    required: true,
+    required: function () {
+      return this.provider === 'local';
+    },
     unique: true,
-    trim: true
+    trim: true,
+    sparse: true // cần nếu có thể null
   },
   password: {
     type: String,
@@ -24,28 +27,32 @@ const userSchema = new mongoose.Schema({
   phonenumber: {
     type: String,
     unique: true,
-    sparse: true,
+    sparse: true
   },
-  
-  facebookId: { type: String, unique: true },
-  email: { type: String },
-  name: { type: String },
-  avatar: { type: String },
-  role: { type: String, default: 'user' },
-
+  facebookId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
   googleId: {
     type: String,
     unique: true,
     sparse: true
   },
-  displayName: String,
-  firstName: String,
-  lastName: String,
-  avatar: String,
+  name: {
+    type: String
+  },
+  avatar: {
+    type: String
+  },
   provider: {
     type: String,
     enum: ['local', 'facebook', 'google'],
     default: 'local'
+  },
+  role: {
+    type: String,
+    default: 'user'
   },
   createdAt: {
     type: Date,
@@ -53,7 +60,7 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// Middleware to hash password before saving user
+// Middleware to hash password before saving user (only if provider is 'local')
 userSchema.pre('save', async function (next) {
   if (this.isModified('password') && this.password) {
     try {
@@ -76,6 +83,5 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   }
 };
 
-// Create User model
 const User = mongoose.model('User', userSchema);
 export default User;

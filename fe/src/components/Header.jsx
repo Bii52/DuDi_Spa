@@ -5,6 +5,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../store/slices/authSlice';
 
+
 const nav__links = [
   {
     path: '/home',
@@ -76,7 +77,10 @@ const Header = () => {
 
             {isAuthenticated ? (
               <>
-                <span className="text-sm">Xin chào, {user?.name || 'User'}</span>
+                <span className="text-sm">
+                  Xin chào, {user?.name || user?.displayName || user?.username || 'User'}
+                </span>
+
                 <button
                   onClick={() => {
                     dispatch(logout());
@@ -139,7 +143,10 @@ const Header = () => {
         <div className="block md:hidden button__group flex flex-col gap-5 my-12 items-center ">
           {isAuthenticated ? (
             <>
-              <span className="text-sm">Xin chào, {user?.name || 'User'}</span>
+              <span className="text-sm">
+                Xin chào, {user?.name || user?.displayName || user?.username || 'User'}
+              </span>
+
               <button
                 onClick={() => {
                   dispatch(logout());

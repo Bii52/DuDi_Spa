@@ -23,6 +23,7 @@ const AppRoutes = () => (
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
       <Route path="/login/success" element={<LoginSuccess />} />
+
     </Route>
     <Route path="*" element={<div className="text-center p-10">404 Not Found</div>} />
   </Routes>
