@@ -13,19 +13,25 @@ passport.use(new FacebookStrategy({
   profileFields: ['id', 'displayName', 'photos', 'email']
 }, async (accessToken, refreshToken, profile, done) => {
   try {
-    const existingUser = await User.findOne({ facebookId: profile.id });
-    if (existingUser) return done(null, existingUser);
 
-    const newUser = new User({
-      facebookId: profile.id,
-      username: profile.displayName,
-      avatar: profile.photos?.[0]?.value,
-      email: profile.emails?.[0]?.value,
-      provider: 'facebook'
-    });
+    let user = await User.findOne({ facebookId: profile.id });
 
-    await newUser.save();
-    done(null, newUser);
+    if (!user) {
+      user = await User.create({
+        facebookId: profile.id,
+        email: profile.emails?.[0]?.value || '',
+        name: profile.displayName || '', 
+        avatar: profile.photos?.[0]?.value || '',
+        provider: 'facebook'
+      });
+    } else {
+      if (!user.name && profile.displayName) {
+        user.name = profile.displayName;
+        await user.save();
+      }
+    }
+
+    done(null, user);
   } catch (err) {
     done(err, null);
   }
@@ -44,7 +50,7 @@ passport.use(new GoogleStrategy({
         email: profile.emails[0].value,
         name: profile.displayName,
         avatar: profile.photos[0].value,
-        provider: 'google' 
+        provider: 'google'
       });
     }
     done(null, user);

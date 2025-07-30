@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { login } from '../store/slices/authSlice';
-import axios from 'axios';
+import { fetchCurrentUser } from '../../store/slices/authSlice'; 
 
 const LoginSuccess = () => {
   const navigate = useNavigate();
@@ -11,20 +10,17 @@ const LoginSuccess = () => {
 
   useEffect(() => {
     const token = searchParams.get('token');
+
     if (token) {
       localStorage.setItem('token', token);
-      dispatch(fetchCurrentUser());
-      axios.get('/api/auth/me', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-        .then(res => {
-          dispatch(login(res.data));
+
+      dispatch(fetchCurrentUser())
+        .unwrap()
+        .then(() => {
           navigate('/');
         })
-        .catch(err => {
-          console.error('Lỗi lấy profile:', err);
+        .catch((err) => {
+          console.error('Lỗi xác thực:', err);
           navigate('/login');
         });
     } else {

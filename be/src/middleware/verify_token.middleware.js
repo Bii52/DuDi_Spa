@@ -25,12 +25,22 @@ function verifyToken(req, res, next) {
 
   try {
     const decoded = verify(token, process.env.JWT_SECRET);
+
+    if (!decoded?.id) {
+      return res.status(401).json({
+        error: 401,
+        error_text: "Token không chứa ID!",
+        data_name: "Xác thực",
+        data: []
+      });
+    }
+
     req.userData = decoded;
     next();
   } catch (err) {
     return res.status(401).json({
       error: 401,
-      error_text: "Token không hợp lệ!",
+      error_text: "Token không hợp lệ hoặc đã hết hạn!",
       data_name: "Xác thực",
       data: []
     });

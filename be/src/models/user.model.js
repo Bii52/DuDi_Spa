@@ -2,68 +2,84 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
 const userSchema = new mongoose.Schema({
-  username: {
+  name: {
     type: String,
-    required: function () {
-      return this.provider === 'local';
-    },
-    unique: true,
     trim: true,
-    sparse: true // cần nếu có thể null
-  },
-  password: {
-    type: String,
-    minlength: 6,
-    required: function () {
-      return this.provider === 'local';
-    }
   },
   email: {
     type: String,
     unique: true,
+    sparse: true,
     trim: true,
-    sparse: true
   },
-  phonenumber: {
+  phone: {
     type: String,
     unique: true,
-    sparse: true
+    sparse: true,
+    default:'',
+  },
+  password: {
+    type: String,
+    minlength: 6,
+  },
+
+  // OAuth Providers
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true,
   },
   facebookId: {
     type: String,
     unique: true,
-    sparse: true
+    sparse: true,
   },
-  googleId: {
-    type: String,
-    unique: true,
-    sparse: true
-  },
-  name: {
-    type: String
-  },
+
   avatar: {
-    type: String
-  },
-  provider: {
     type: String,
-    enum: ['local', 'facebook', 'google'],
-    default: 'local'
   },
+
+  gender: {
+    type: String,
+    enum: ['male', 'female', 'other'],
+  },
+
+  birthdate: {
+    type: Date,
+  },
+
+  // OTP Verification
+  otp: {
+    type: String,
+  },
+  otpExpires: {
+    type: Date,
+  },
+  isPhoneVerified: {
+    type: Boolean,
+    default: false,
+  },
+
+  // Email Verification
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
+
+  // User Role
   role: {
     type: String,
-    default: 'user'
+    enum: ['user', 'admin'],
+    default: 'user',
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
 
-// Middleware to hash password before saving user (only if provider is 'local')
+}, { timestamps: true });
+
+// Middleware to hash password if changed and present
 userSchema.pre('save', async function (next) {
   if (this.isModified('password') && this.password) {
     try {
+      console.log('Hashing password...')
       const salt = await bcrypt.genSalt(10);
       this.password = await bcrypt.hash(this.password, salt);
     } catch (error) {
@@ -73,14 +89,10 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// Method to compare password
+// Instance method to compare password
 userSchema.methods.comparePassword = async function (candidatePassword) {
   if (!this.password) return false;
-  try {
-    return await bcrypt.compare(candidatePassword, this.password);
-  } catch (error) {
-    throw new Error(error);
-  }
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
 const User = mongoose.model('User', userSchema);

@@ -1,15 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCurrentUser } from '../store/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { FaEdit } from "react-icons/fa";
 import { FaShare } from "react-icons/fa6";
-import { IoSettings } from "react-icons/io5";
-import { IoCalendarOutline } from "react-icons/io5";
-import { IoLockClosedOutline } from "react-icons/io5";
-import { FaMapMarkerAlt } from "react-icons/fa";
+import { IoSettings, IoCalendarOutline, IoLockClosedOutline } from "react-icons/io5";
+import { FaCamera } from "react-icons/fa";
+import Toast from '../components/ui/Toast';
+import useToast from '../hooks/useToast';
 
 const Profile = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [formData, setFormData] = React.useState({
+  const { user, isLoading } = useSelector((state) => state.auth);
+  const { toast, showSuccess, showError, hideToast } = useToast();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
     email: '',
@@ -17,146 +25,376 @@ const Profile = () => {
     birthDay: '',
     birthMonth: '',
     birthYear: '',
-    password: '',
-    confirmPassword: ''
+    avatar: '',
   });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAvatarMenu, setShowAvatarMenu] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [errors, setErrors] = useState({});
+  const fileInputRef = useRef(null);
+  useEffect(() => {
+    if (user) {
+      const birthDate = user.birthdate ? new Date(user.birthdate) : null;
+      console.log(user);
+      setFormData({
+        fullName: user.name || '',
+        phone: user.phone || '',
+        email: user.email || '',
+        gender: user.gender || '',
+        birthDay: birthDate ? birthDate.getDate().toString().padStart(2, '0') : '',
+        birthMonth: birthDate ? (birthDate.getMonth() + 1).toString().padStart(2, '0') : '',
+        birthYear: birthDate ? birthDate.getFullYear().toString() : '',
+        avatar: user.avatar || ''
+      });
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-
-    if (value.toLowerCase() === 'script') {
-      navigate('/script-page');
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert('Mật khẩu không khớp!');
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    const maxSize = 5 * 1024 * 1024;
+
+    if (!allowedTypes.includes(file.type)) {
+      showError('Chỉ chấp nhận file ảnh (JPEG, PNG, GIF)');
       return;
     }
-    console.log(formData);
+
+    if (file.size > maxSize) {
+      showError('File ảnh không được lớn hơn 5MB');
+      return;
+    }
+
+    setUploadingAvatar(true);
+
+    const formDataCloud = new FormData();
+    formDataCloud.append('file', file);
+    formDataCloud.append('upload_preset', 'avatar_unsigned');
+    formDataCloud.append('cloud_name', 'dslzlviqm');
+
+    try {
+      const res = await fetch('https://api.cloudinary.com/v1_1/dslzlviqm/image/upload', {
+        method: 'POST',
+        body: formDataCloud,
+      });
+
+      const data = await res.json();
+
+      if (data.secure_url) {
+        setFormData(prev => ({
+          ...prev,
+          avatar: data.secure_url
+        }));
+
+        // Gọi API cập nhật ngay khi có avatar mới
+        const token = localStorage.getItem('token');
+        await axios.put('/api/auth/profile', {
+          avatar: data.secure_url,
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        await dispatch(fetchCurrentUser()).unwrap();
+
+        showSuccess('Ảnh đại diện đã được cập nhật!');
+      } else {
+        showError('Không thể upload ảnh. Vui lòng thử lại.');
+      }
+    } catch (err) {
+      console.error("Lỗi khi upload ảnh:", err);
+      showError('Lỗi khi upload ảnh. Vui lòng thử lại.');
+    } finally {
+      setUploadingAvatar(false);
+      setShowAvatarMenu(false);
+    }
   };
 
-  return (
-    <div className="min-h-screen w-screen font-sans bg-[#fefefe]">
-      {/* Main Content */}
-      <main className="max-w-full md:max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 p-4 sm:p-6">
-        {/* Thông tin cá nhân */}
-        <aside className="w-full col-span-1 bg-white rounded-xl border border-gray-200 p-6 shadow-xl self-start">
-          <h3 className="text-2xl font-semibold text-[#BA7894] mb-4 text-center">Thông Tin Cá Nhân</h3>
-          <div className="text-center text-[#BA7894]">
-            <img
-              src="https://i.pravatar.cc/100?u=dan"
-              alt="Avatar"
-              className="w-24 h-24 mx-auto rounded-full border-4 border-blue-500 p-1 mb-4"
-            />
-            <h4 className="font-semibold text-lg">Trịnh Tuấn Đan</h4>
-            <p className="text-sm text-gray-500">Thành viên từ 2022</p>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-            <div className="mt-4 flex flex-col items-center gap-3 w-full">
-              <button className="w-full max-w-xs text-sm border border-[#BA7894] text-[#BA7894] rounded-xl px-4 py-2 flex items-center justify-center gap-2 bg-white hover:bg-pink-50">
-                <FaShare /> Chia sẻ trang của bạn
+    try {
+      const token = localStorage.getItem('token');
+      const { fullName, phone, email, gender, birthDay, birthMonth, birthYear, avatar } = formData;
+      const birthdate = `${birthYear}-${birthMonth}-${birthDay}`;
+
+      await axios.put('/api/auth/profile', {
+        name: fullName,
+        phone,
+        email,
+        gender,
+        birthdate,
+        avatar,
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const data = await dispatch(fetchCurrentUser()).unwrap();
+      console.log("data----", data)
+
+      showSuccess('Cập nhật hồ sơ thành công!');
+      setIsEditing(false);
+    } catch (error) {
+      console.error(error);
+      showError('Lỗi khi cập nhật hồ sơ');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isLoading) return <p>Đang tải thông tin...</p>;
+
+  return (
+    <div className="min-h-screen w-screen font-sans bg-[#fefefe] relative">
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={hideToast}
+          duration={toast.duration}
+        />
+      )}
+
+      <main className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 p-4 sm:p-6">
+        <aside className="col-span-1 bg-white rounded-xl border p-5 shadow-md self-start relative">
+          <h3 className="text-2xl font-semibold text-[#BA7894] mb-4 text-center">Thông Tin Cá Nhân</h3>
+          <div className="text-center text-[#BA7894] relative">
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              hidden
+            />
+            <div className="relative inline-block">
+              <div className="relative">
+                <img
+                  src={formData.avatar || 'https://i.pravatar.cc/100?u=dan'}
+                  alt="Avatar"
+                  className="w-24 h-24 mx-auto rounded-full border-4 border-[#BA7894] p-1 mb-4 cursor-pointer hover:opacity-80 transition-opacity"
+                />
+                <button
+                  onClick={() => setShowAvatarMenu(prev => !prev)}
+                  className="absolute bottom-2 right-2 bg-[#BA7894] text-white rounded-full p-2 hover:bg-pink-700 transition-colors"
+                >
+                  <FaCamera size={12} />
+                </button>
+              </div>
+              {showAvatarMenu && (
+                <div className="absolute top-24 left-1/2 transform -translate-x-1/2 w-48 bg-white border rounded-md shadow-md z-50 text-sm">
+                  <div
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
+                    onClick={() => fileInputRef.current.click()}
+                  >
+                    {uploadingAvatar ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#BA7894]"></div>
+                        Đang upload...
+                      </>
+                    ) : (
+                      <>
+                        📤 Tải ảnh lên
+                      </>
+                    )}
+                  </div>
+                  <div
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-500"
+                    onClick={() => setShowAvatarMenu(false)}
+                  >
+                    ❌ Hủy
+                  </div>
+                </div>
+              )}
+            </div>
+            <h4 className="font-semibold text-lg">{user?.name || 'Không có tên'}</h4>
+            <p className="text-sm text-gray-500">Thành viên từ 2022</p>
+            <div className="mt-4 flex flex-col items-center gap-3">
+              <button
+                type="button"
+                onClick={() => navigate('/BookingHistory')}
+                className="w-full text-sm border border-[#BA7894] text-[#BA7894] rounded-xl px-4 py-2 flex items-center justify-center gap-2 hover:bg-pink-50 transition"
+              >
+                <FaShare /> Lịch sử
               </button>
-              <button className="w-full max-w-xs text-sm border border-[#BA7894] text-[#BA7894] rounded-xl px-4 py-2 flex items-center justify-center gap-2 bg-white hover:bg-pink-50">
+
+              <button
+                type="button"
+                onClick={() => setIsEditing(true)}
+                className="w-full text-sm border border-[#BA7894] text-[#BA7894] rounded-xl px-4 py-2 flex items-center justify-center gap-2 hover:bg-pink-50 transition"
+              >
                 <FaEdit /> Chỉnh sửa trang cá nhân
               </button>
-              <button className="w-full max-w-xs text-sm border border-[#BA7894] text-[#BA7894] rounded-xl px-4 py-2 flex items-center justify-center gap-2 bg-white hover:bg-pink-50">
+
+              <button
+                type="button"
+                onClick={() => navigate('/ChangePassword')}
+                className="w-full text-sm border border-[#BA7894] text-[#BA7894] rounded-xl px-4 py-2 flex items-center justify-center gap-2 hover:bg-pink-50 transition"
+              >
                 <IoSettings /> Cài Đặt
               </button>
             </div>
-
             <div className="mt-6 text-left text-sm space-y-2 text-black">
               <p className="flex items-center gap-2">
                 <IoCalendarOutline /> Đã tham gia: 16/01/2022
               </p>
               <p className="flex items-center gap-2">
-                <IoLockClosedOutline /> Đã xác thực: Chưa xác thực
-              </p>
-              <p className="flex items-center gap-2">
-                <FaMapMarkerAlt /> Địa chỉ: Chưa cung cấp
+                <IoLockClosedOutline /> Đã xác thực: {formData.email ? 'Đã xác thực' : 'Chưa xác thực'}
               </p>
             </div>
           </div>
         </aside>
 
-        {/* Hồ sơ cá nhân */}
-        <form onSubmit={handleSubmit} className="col-span-1 md:col-span-3 bg-white rounded-lg p-6 shadow-sm border border-[#A7F3D0] space-y-6">
-          <h2 className="text-2xl font-semibold text-[#BA7894]">Hồ sơ cá nhân</h2>
+        <form onSubmit={handleSubmit} className="col-span-2 bg-white rounded-lg p-6 shadow-sm border border-[#A7F3D0] space-y-6">
+          <h2 className="text-xl sm:text-2xl font-semibold text-[#BA7894]">Hồ sơ cá nhân</h2>
+          <input
+            type="text"
+            name="fullName"
+            value={formData.fullName}
+            onChange={handleChange}
+            disabled={!isEditing}
+            className={`p-3 border rounded-2xl w-full transition ${!isEditing
+              ? 'bg-indigo-50 text-gray-500 border-indigo-100 cursor-not-allowed'
+              : 'border-indigo-200 focus:border-[#6C63FF]'
+              }`}
+            placeholder="Nhập họ tên của bạn"
+          />
 
-          {/* THÔNG TIN LIÊN HỆ */}
-          <div className="space-y-3 text-[#BA7894] ">
-            <h4 className="text-lg font-medium ">Họ Tên</h4>
-            <input type="text" name="fullName" value={formData.fullName} onChange={handleChange}
-              className="p-2 border border-pink-200 rounded-2xl w-full" />
-            <h4 className="text-lg font-medium ">Số Điện Thoại</h4>
-            <input type="text" name="phone" value={formData.phone} onChange={handleChange}
-              className="p-2 border border-pink-200 rounded-2xl w-full" />
-            <h4 className="text-lg font-medium ">Gmail</h4>
-            <input type="email" name="email" value={formData.email} onChange={handleChange}
-              className="p-2 border border-pink-200 rounded-2xl w-full" />
+          <div className="space-y-3 text-[#BA7894]">
+            <h4 className="text-lg font-medium">Số Điện Thoại</h4>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              disabled={!isEditing}
+              className={`p-3 border rounded-2xl w-full transition ${!isEditing
+                ? 'bg-indigo-50 text-gray-500 border-indigo-100 cursor-not-allowed'
+                : 'border-indigo-200 focus:border-[#6C63FF]'
+                }`}
+              placeholder="Nhập số điện thoại"
+            />
+            {errors.phone && (
+              <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+            )}
           </div>
 
-          {/* GIỚI TÍNH */}
+          <div className="space-y-3 text-[#BA7894]">
+            <h4 className="text-lg font-medium">Gmail</h4>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              disabled
+              className="p-3 border rounded-2xl w-full bg-indigo-50 text-gray-500 border-indigo-100 cursor-not-allowed"
+            />
+            <p className="text-sm text-gray-500">Email không thể thay đổi</p>
+          </div>
           <div className="space-y-3">
             <h4 className="text-lg font-medium text-[#BA7894]">Giới tính</h4>
-            <input type="text" name="gender" value={formData.gender} onChange={handleChange}
-              className="p-2 border border-pink-200 rounded-2xl w-full bg-white" />
+            <select
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              disabled={!isEditing}
+              className={`p-3 border rounded-2xl w-full transition ${!isEditing
+                ? 'bg-indigo-50 text-gray-500 border-indigo-100 cursor-not-allowed'
+                : 'border-indigo-200 focus:border-[#6C63FF]'
+                }`}
+            >
+              <option value="">Chọn giới tính</option>
+              <option value="male">Nam</option>
+              <option value="female">Nữ</option>
+              <option value="other">Khác</option>
+            </select>
           </div>
-          {/*NGÀY SINH */}
           <div className="space-y-3">
             <h4 className="text-lg font-medium text-[#BA7894]">Ngày sinh</h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <select name="birthDay" value={formData.birthDay} onChange={handleChange}
-                className="w-full p-2 text-sm border rounded-2xl border-pink-200 bg-white text-center">
+              <select
+                name="birthDay"
+                value={formData.birthDay}
+                onChange={handleChange}
+                disabled={!isEditing}
+                className={`p-3 border rounded-2xl text-center transition ${!isEditing
+                  ? 'bg-indigo-50 text-gray-500 border-indigo-100 cursor-not-allowed'
+                  : 'border-pink-200 focus:border-[#BA7894]'
+                  }`}
+              >
                 <option value="">Ngày</option>
                 {Array.from({ length: 31 }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>{i + 1}</option>
+                  <option key={i} value={String(i + 1).padStart(2, '0')}>
+                    {i + 1}
+                  </option>
                 ))}
               </select>
-
-              <select name="birthMonth" value={formData.birthMonth} onChange={handleChange}
-                className="w-full p-2 text-sm border rounded-2xl border-pink-200 bg-white text-center">
+              <select
+                name="birthMonth"
+                value={formData.birthMonth}
+                onChange={handleChange}
+                disabled={!isEditing}
+                className={`p-3 border rounded-2xl text-center transition ${!isEditing
+                  ? 'bg-indigo-50 text-gray-500 border-indigo-100 cursor-not-allowed'
+                  : 'border-pink-200 focus:border-[#BA7894]'
+                  }`}
+              >
                 <option value="">Tháng</option>
                 {Array.from({ length: 12 }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>{i + 1}</option>
+                  <option key={i} value={String(i + 1).padStart(2, '0')}>
+                    {i + 1}
+                  </option>
                 ))}
               </select>
-
-              <select name="birthYear" value={formData.birthYear} onChange={handleChange}
-                className="w-full p-2 text-sm border rounded-2xl border-pink-200 bg-white text-center">
+              <select
+                name="birthYear"
+                value={formData.birthYear}
+                onChange={handleChange}
+                disabled={!isEditing}
+                className={`p-3 border rounded-2xl text-center transition ${!isEditing
+                  ? 'bg-indigo-50 text-gray-500 border-indigo-100 cursor-not-allowed'
+                  : 'border-pink-200 focus:border-[#BA7894]'
+                  }`}
+              >
                 <option value="">Năm</option>
                 {Array.from({ length: 100 }, (_, i) => (
-                  <option key={i} value={2025 - i}>{2025 - i}</option>
+                  <option key={i} value={2025 - i}>
+                    {2025 - i}
+                  </option>
                 ))}
               </select>
             </div>
+            {errors.birthDate && (
+              <p className="text-red-500 text-sm mt-1">{errors.birthDate}</p>
+            )}
           </div>
 
-          {/* MẬT KHẨU */}
-          <div className="space-y-3">
-            <h4 className="text-lg font-medium text-[#BA7894]">Mật khẩu</h4>
-            <input type="password" name="password" value={formData.password} onChange={handleChange}
-              className="p-2 border border-pink-200 rounded-2xl w-full" />
-            <h4 className="text-lg font-medium text-[#BA7894]">Nhập lại mật khẩu</h4>
-            <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange}
-              className="p-2 border border-pink-200 rounded-2xl w-full" />
-          </div>
-
-          <div className="flex justify-center">
-            <button
-              type="submit"
-              className="px-6 py-2 bg-[#BA7894] text-white rounded-md hover:bg-pink-700 text-sm"
-            >
-              Lưu thay đổi
-            </button>
-          </div>
-
+          {isEditing && (
+            <div className="flex justify-center pt-4">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-8 py-3 bg-[#BA7894] text-white rounded-md hover:bg-pink-700 disabled:opacity-50 transition font-medium"
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Đang lưu...
+                  </div>
+                ) : (
+                  'Lưu thay đổi'
+                )}
+              </button>
+            </div>
+          )}
         </form>
-
       </main>
-    </div >
+    </div>
   );
 };
 
