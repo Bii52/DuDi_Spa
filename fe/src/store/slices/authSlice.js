@@ -7,28 +7,17 @@ export const fetchCurrentUser = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
-      const user = localStorage.getItem("user")
-      console.log(user)
-      if (!token) throw new Error('No token found');
-      
-      const response = await axios.get('/api/auth/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-
-        data:{
-            userData: {
-              id: user._id
-            }
-          }
+      const res = await axios.get('/api/auth/me', {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      console.log(response.data)
-      return response.data; 
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || 'Error fetching user');
+      return res.data.data;
+    } catch (err) {
+      console.error("🔥 Error fetching user", err);
+      return thunkAPI.rejectWithValue(err.response?.data || err.message);
     }
   }
 );
+
 
 // Khởi tạo state
 const initialState = {
