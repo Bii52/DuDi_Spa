@@ -50,6 +50,8 @@ export const sendOtp = async (req, res) => {
 export const verifyOtp = async (req, res) => {
   try {
     const { name, email, password, otp } = req.body;
+    console.log('📥 verifyOtp body:', req.body);
+    console.log('🔐 Stored OTP:', otpStore[email]);
 
     const stored = otpStore[email];
     if (!stored) return res.status(400).json({ message: 'OTP chưa được gửi hoặc đã hết hạn' });
@@ -59,6 +61,10 @@ export const verifyOtp = async (req, res) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'Email đã được sử dụng' });
 
+    // ⚠️ Kiểm tra độ dài password
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Mật khẩu phải từ 6 ký tự trở lên' });
+    }
 
     const newUser = await User.create({
       name,
@@ -71,9 +77,11 @@ export const verifyOtp = async (req, res) => {
 
     return res.status(201).json({ message: 'Tạo tài khoản thành công', userId: newUser._id });
   } catch (err) {
+    console.error('🔥 verifyOtp Error:', err);
     return res.status(500).json({ message: 'Lỗi tạo tài khoản', error: err.message });
   }
 };
+
 
 /**
  * Đăng nhập
@@ -108,16 +116,20 @@ export const getMe = async (req, res) => {
     }
     console.log("user ff", user)
     return res.status(200).json({
-      id: user._id,
-      name: user.name,
-      username: user.username,
-      phone: user.phone,
-      email: user.email,
-      gender: user.gender,
-      birthdate: user.birthdate,
-      avatar: user.avatar,
-      role: user.role,
-    });
+  error: 0,
+  data: {
+    id: user._id,
+    name: user.name,
+    username: user.username,
+    phone: user.phone,
+    email: user.email,
+    gender: user.gender,
+    birthdate: user.birthdate,
+    avatar: user.avatar,
+    role: user.role,
+  }
+});
+
   } catch (err) {
     return res.status(500).json({ message: 'Lỗi server', error: err.message });
   }

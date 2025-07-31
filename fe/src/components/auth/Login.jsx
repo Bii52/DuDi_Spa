@@ -43,7 +43,8 @@ const Login = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      dispatch(loginAction({ token, user: meRes.data }));
+      dispatch(loginAction({ token, user: meRes.data.data }));
+
 
       alert('Đăng nhập thành công');
       navigate('/');
