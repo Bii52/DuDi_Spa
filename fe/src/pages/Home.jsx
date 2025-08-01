@@ -1,15 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react'
 import Cookies from 'js-cookie';
 import Slider from "react-slick";
-import heroImg from '../assets/images/hero-img.png'
-import heroIcon from '../assets/images/hero-icon.png'
-import SearchBar from '../components/SearchBar'
-import category01 from '../assets/images/category-1.png'
-import category02 from '../assets/images/category-2.png'
-import category03 from '../assets/images/category-3.png'
-import category04 from '../assets/images/category-4.png'
-import category05 from '../assets/images/category-5.png'
-import category06 from '../assets/images/category-6.png'
 import gallery01 from '../assets/images/gallery-1.png'
 import gallery02 from '../assets/images/gallery-2.png'
 import gallery03 from '../assets/images/gallery-3.png'
@@ -19,10 +10,21 @@ import subscriptionImg from '../assets/images/subscription-img.png'
 import Testimonials from '../shared/Testimonials'
 import Recommended from '../shared/Recommended'
 import SalePopup from '../pop-up/SalePopup';
-
+import Hero from '../shared/Hero';
+import useFetch from '../hooks/useFetch';
+import { BASE_URL } from '../utils/config'
+import { useNavigate } from 'react-router-dom';
 
 
 const Home = () => {
+
+  const navigate = useNavigate()
+  const categoryClickHandle = (categoryName) => {
+    console.log('Clicked category:', categoryName)
+    navigate(`/services?category=${categoryName}`)
+  }
+  
+  const {data:categories, loading, error} = useFetch(`${BASE_URL}/category`)
 
   const sliderRef1 = useRef();
   const sliderRef2 = useRef();
@@ -66,101 +68,57 @@ const Home = () => {
     swipeToSlide: true,
     slidesToShow: 6,      
     responsive: [
-    {
-      
-        breakpoint: 768,
-        settings: {
-        slidesToShow: 3,
-        },
+    {      
+      breakpoint: 1280,
+      settings: {
+        slidesToShow: 5,
+      },
     },
-    {
-      
+    {      
+      breakpoint: 1024,
+      settings: {
+        slidesToShow: 4,
+      },
+    },
+    {      
       breakpoint: 576,
       settings: {
-      slidesToShow: 2,
+        slidesToShow: 2,
       },
     },
     
     ]
-  };  
-
-  const images =[
-    category01,
-    category02,
-    category03,
-    category04,
-    category05,
-    category06,
-  ];
-
-  const category_name = [
-    "Makeup-artist",
-    "Wellnesscenter",
-    "Barbersalon",
-    "Frisørsalon",
-    "Massageklinik",
-    "Fodterapeut",
-  ];
-
+  };
 
 
   return (
     <>
-    {showPopup && <SalePopup onClose={handleClosePopup}/>}
-    {/* {showPopup && <FailedPopup onClose={handleClosePopup}/>} */}
+    {showPopup && <SalePopup onClose={handleClosePopup}/>}   
+
+    <Hero/>    
     
-    {/*============ hero section start========== */}
-      <div className="hero__section flex relative h-[475px] md:h-[576px] lg:h-screen max-h-[1000px] w-full">
-
-        <div className="hero__gradient h-full absolute hero-gradient w-full sm:w-[80%] left-0 z-10">
-        
-          <div className="content__container flex absolute left-[10%] h-full  w-[90%] 2xl:w-[60%] z-20 content-center items-center">    
-            <div className="hero__title w-[100%] text-left space-y-4">
-              <div className="flex hero__subtitle gap-2 content-center items-center  ">
-                  <img src={heroIcon} alt="" className='w-6 h-6'/>
-                  <h4 className='text-white'>HAIR SALON, MASSEUSE, BEAUTY SALON</h4>           
-                </div>
-                <h1 className='font-bold'>Find a service <br/> close to you</h1>
-                <p className="font-normal text-white text-[18px] leading-[170%] tracking-normal ">
-                  There are many variation of passages are Ipsum available,
-                  <br className="hidden sm:inline" />
-                  majority have suffered alteration in some form.
-                </p>
-                  <div className="pr-6">
-                    <SearchBar />
-                  </div>
-            </div>       
-          
-          </div>          
-        </div>
-        <div className="hero__banner h-full object-cover absolute w-full sm:w-[60%] right-0">
-          <img src={heroImg} alt="" className='w-full h-full object-cover'/>
-        </div>    
-
-      </div>
-    {/*============ hero section end========== */}
     {/* ==========category start============== */}
 
     <div className="category__section w-full flex my-6 justify-between">
-      <button onClick={() => sliderRef1.current.slickPrev()} className="ml-3">
-        <i className="ri-arrow-left-s-line text-xl lg:text-3xl xl:text-5xl"></i>
+      <button onClick={() => sliderRef1.current.slickPrev()} className="">
+        <i className="ri-arrow-left-s-line text-xl lg:text-3xl xl:text-5xl text-gray-400"></i>
       </button>  
       
       <div className="flex-1 w-[60%] sm:w-[80%] ">
         <Slider ref={sliderRef1} {...settings}>
-            {images.map((img, index) => (
-              <div key={index} className='flex justify-center items-center'>
-                <div className="flex flex-col items-center justify-center">
-                  <img src={img} alt={`category-${index}`} className="object-cover justify-center mb-4" />
-                  <h3 className='font-bold text-[#422A3C]'>{category_name[index]}</h3>
+            {categories.map((category, index) => (
+              <div key={categories._id || index } className='flex justify-center items-center'>
+                <div className="flex flex-col items-center justify-center" onClick={() => categoryClickHandle(category.name)}>
+                  <img src={category.image} alt={`category-${index}`} className="object-cover justify-center min-h-[81.64px]" />
+                  <h3 className='font-extrabold !text-xs sm:!text-xl'>{category.name}</h3>
                 </div>
               </div>            
         ))} 
         </Slider>
       </div>
 
-      <button onClick={() => sliderRef1.current.slickNext()} className="mr-3">
-          <i className="ri-arrow-right-s-line text-xl lg:text-3xl xl:text-5xl"></i>
+      <button onClick={() => sliderRef1.current.slickNext()} className="">
+          <i className="ri-arrow-right-s-line text-xl lg:text-3xl xl:text-5xl text-gray-400"></i>
       </button>      
       </div> 
         {/* ==========category end============== */}
@@ -168,7 +126,7 @@ const Home = () => {
           {/* ==========gallery start============== */}
           <div className="gallery__section bg-[#EBF3F580] my-6 py-6">
             <div className="gallery__heading ">
-              <h2 className='pb-0 mb-2 text-[#422A3C] '>We are Experienced in making you <br/> very Beautiful</h2>
+              <h2 className='pb-0 mb-2 text-[#422A3C]'>We are Experienced in making you <br/> very Beautiful</h2>
               <h5>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptatibus beatae expedita, nam laborum vitae et ducimus fugit!</h5>
             </div>
             <div className="gallery__container my-6 py-4 mx-24 ">
@@ -198,7 +156,7 @@ const Home = () => {
           </div>
           {/* ==========gallery end============== */}
 
-          {/* ==========recommended start============== */}
+          {/* ==========recommended start============== */}    
           <Recommended/>          
           {/* ==========recommended end============== */}
           {/* testimonials start */}
@@ -223,7 +181,6 @@ const Home = () => {
                     <button className='rounded-3xl !bg-[#141414] text-white mr-1 my-1 sm:block hidden'>Subscribe</button>
                   </div>  
                   <button className='mx-auto rounded-3xl !bg-[#141414] justify-center text-white block sm:hidden'>Subscribe</button>
-
               </div>
               </div>
           </div>

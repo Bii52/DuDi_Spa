@@ -14,6 +14,7 @@ import LoginSuccess from '../components/auth/LoginSuccess';
 import GoogleSuccess from '../components/auth/GoogleSuccess';
 import BookingHistory from '../pages/BookingHistory';
 import ChangePassword from '../pages/ChangePassword';
+import Service from '../pages/Services';
 
 
 const AppRoutes = () => (
@@ -26,6 +27,7 @@ const AppRoutes = () => (
       <Route path="about" element={<About />} />
       <Route path="contact" element={<Contact />} />
       <Route path="profile" element={<Profile />} />
+      < Route path='/services' element={<Service/>} />
       < Route path='/services/:id' element={<ServiceDetail />} />
       < Route path='/booking/:id' element={<Booking />} />
       <Route path="/BookingHistory" element={<BookingHistory />} />
