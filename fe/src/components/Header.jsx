@@ -13,6 +13,10 @@ const nav__links = [
     display: 'Home'
   },
   {
+    path:'/services',
+    display:'Services'
+  },
+  {
     path: '/about',
     display: 'AboutUs'
   },
@@ -30,6 +34,7 @@ const Header = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [menuOpen, setMenuOpen] = useState(false)
   const overlayRef = useRef(null);
   const menuRef = useRef(null);
   useEffect(() => {
@@ -44,9 +49,20 @@ const Header = () => {
     };
   }, []);
 
-  const toggleMenu = () => {
-    menuRef.current.classList.toggle('translate-x-full');
-  };
+  const toggleMenu = () => {  
+    setMenuOpen(prev=>!prev)
+  }
+
+  useEffect(()=> {
+    const handleClickOutside = (e) => {
+      if (menuOpen && menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false)
+      }
+    }
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [menuOpen]);
+
 
   const isHome = location.pathname === '/' || location.pathname === '/home';
 
@@ -60,7 +76,9 @@ const Header = () => {
       <div className="flex items-center justify-between mx-auto xl:px-[120px] h-[50%] w-full my-auto ">
         {/* logo start*/}
         <div className="logo content-center px-0">
-          <img src={logo} alt="" />
+          <Link to="/">
+            <img src={logo} alt="" />
+          </Link>
         </div>
         {/* logo end*/}
         {/* menu desktop start*/}
@@ -85,8 +103,9 @@ const Header = () => {
           </div>
 
           {/* button start*/}
-          <div className="button__group hidden md:flex gap-4 items-center">
-            <div className="md:hidden"><LanguageSwitcher /></div>
+          <div className="button__group hidden lg:flex gap-4 items-center">
+            {/* <div className="md:hidden"><LanguageSwitcher /></div> */}
+            <LanguageSwitcher/> 
 
             {isAuthenticated ? (
               <div className="relative" ref={dropdownRef}>
@@ -157,23 +176,28 @@ const Header = () => {
             <i className="ri-menu-line"></i>
           </span>
         </div>
-
       </div>
+      {menuOpen && (
+          <div
+            className="fixed inset-0 bg-black/40 z-40"
+            onClick={toggleMenu}
+          />
+          )}    
       {/* mobile menu start */}
-      <div
+      <div 
         ref={menuRef}
-        className="fixed w-[25%] h-full bg-[var(--bg-color)] top-0 right-0 pt-16 mb-0 translate-x-full transition-transform duration-300"
-        onClick={toggleMenu}>
+        className={`fixed right-0 top-0 w-[25%] h-full bg-[var(--bg-color)] pt-16 mb-0 transition-transform duration-300 z-50
+        ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        onClick={toggleMenu}>  
 
         <ul className="sub__nav flex flex-col items-center gap-8" >
           {
             nav__links.map((item, index) => (
               <li key={index}>
                 <NavLink
-                  to={item.path}
-                  onClick={toggleMenu}
+                  to={item.path}                 
                   className={navClass => {
-                    return navClass.isActive ? "" : ""
+                    return navClass.isActive ? "!font-extrabold" : ""
                   }}
                 >
                   {item.display}
@@ -183,7 +207,7 @@ const Header = () => {
           }
         </ul>
         {/* button start*/}
-        <div className="block md:hidden button__group flex flex-col gap-5 my-12 items-center ">
+        <div className="block lg:hidden button__group flex flex-col gap-5 my-12 items-center ">
           {isAuthenticated ? (
             <>
               <span className="text-sm">
@@ -203,20 +227,24 @@ const Header = () => {
             </>
           ) : (
             <>
-              <button className="border-[1.5px] rounded-[5px] px-4 py-2">
-                <Link to="/login">Login</Link>
-              </button>
-              <button className="border-[1.5px] rounded-[5px] !bg-[var(--text-color)] text-white px-4 py-2">
-                <Link to="/register">Signup</Link>
-              </button>
+              <Link
+                to="/login"
+                className="border-[1.5px] rounded-[5px] px-4 py-2 text-center block"
+              >
+                Login
+              </Link>
+              <Link
+                to="/register"
+                className="border-[1.5px] rounded-[5px] !bg-[var(--text-color)] !text-white px-4 py-2 text-center block"
+              >
+                Signup
+              </Link>  
             </>
           )}
         </div>
 
         {/* button end */}
-      </div>
-      {/* </div> */}
-
+      </div>     
 
       {/* mobile menu end */}
     </header>
